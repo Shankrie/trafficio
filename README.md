@@ -74,3 +74,7 @@ and finally `W.start`, `W.setRoute` and `W.goalAt`. Lane coordinates come from `
 The game is designed so other countries' rules can be added later (signs, rule texts and levels are kept separate from the engine).
 
 *Disclaimer: this is a learning aid, not an official KET reference. Always consult the current official Kelių eismo taisyklės.*
+
+## 3D view
+
+By default the game renders in a tilted top-down 3D view with cel-shaded buildings, trees, cars and shadows (`js/render3d.js`, using the bundled three.js r128 in `js/vendor/`). The ground (roads and markings) reuses the 2D drawing as tiled textures. Press **V** or use the "View" button to switch to the flat 2D view, which is also used automatically if WebGL isn't available.

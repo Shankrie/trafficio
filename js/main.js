@@ -152,6 +152,17 @@ window.addEventListener('load', () => {
     el.dataset.armed = '1'; el.textContent = 'Click again to reset all progress';
     setTimeout(() => { delete el.dataset.armed; el.textContent = 'Reset progress'; }, 4000);
   };
+  const viewBtns = [$('view-toggle'), $('p-view')];
+  const applyView = on => {
+    const v = game.setView3d(on);
+    for (const b of viewBtns) if (b) { b.textContent = v ? 'View: 3D' : 'View: 2D'; b.hidden = !game.r3d; }
+    try { localStorage.setItem('trafficio.view', v ? '3d' : '2d'); } catch (e) { /* ignore */ }
+  };
+  let pref = '3d';
+  try { pref = localStorage.getItem('trafficio.view') || '3d'; } catch (e) { /* ignore */ }
+  applyView(pref === '3d');
+  for (const b of viewBtns) if (b) b.onclick = () => applyView(!game.view3d);
+  window.addEventListener('keydown', e => { if (e.code === 'KeyV' && !e.repeat) applyView(!game.view3d); });
   bindHold('t-left', 'left'); bindHold('t-right', 'right'); bindHold('t-gas', 'up'); bindHold('t-brake', 'down');
   $('t-sl').addEventListener('pointerdown', e => { e.preventDefault(); if (game.state === 'play') game.car.toggleSignal('left'); });
   $('t-sr').addEventListener('pointerdown', e => { e.preventDefault(); if (game.state === 'play') game.car.toggleSignal('right'); });

@@ -140,8 +140,20 @@ class Game {
     this.toasts = [];
     this.levelIndex = 0;
     this.last = performance.now();
+    this.r3d = null;
+    const gl = document.getElementById('gl');
+    if (gl && Renderer3D.supported()) {
+      try { this.r3d = new Renderer3D(gl); } catch (e) { console.warn('3D view unavailable', e); this.r3d = null; }
+    }
+    this.view3d = !!this.r3d;
     this.resize();
     window.addEventListener('resize', () => this.resize());
+  }
+  setView3d(on) {
+    this.view3d = !!(on && this.r3d);
+    const gl = document.getElementById('gl');
+    if (gl) gl.style.display = this.view3d ? 'block' : 'none';
+    return this.view3d;
   }
   resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -149,6 +161,7 @@ class Game {
     this.vw = window.innerWidth; this.vh = window.innerHeight;
     this.canvas.width = Math.round(this.vw * dpr); this.canvas.height = Math.round(this.vh * dpr);
     this.canvas.style.width = this.vw + 'px'; this.canvas.style.height = this.vh + 'px';
+    if (this.r3d) this.r3d.resize();
   }
 
   load(i) {
@@ -415,6 +428,12 @@ class Game {
   render(dt) {
     const ctx = this.ctx, W = this.W;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    if (W && this.view3d) {
+      ctx.clearRect(0, 0, this.vw, this.vh);
+      this.r3d.render(this, dt);
+      this.drawHUD(ctx);
+      return;
+    }
     ctx.fillStyle = '#5d8a45'; ctx.fillRect(0, 0, this.vw, this.vh);
     if (!W) return;
     const car = this.car;
@@ -546,7 +565,7 @@ class Game {
     const items = ahead.slice(0, 3);
     if (items.length || light) {
       const bw = small ? 210 : 270, ih = 58;
-      const bx = vw - bw - 14, by = small ? 70 : 76;
+      const bx = vw - bw - 14, by = small ? 140 : 76;
       const n = items.length + (light ? 1 : 0);
       ctx.fillStyle = 'rgba(14,20,32,0.72)'; roundRect(ctx, bx, by, bw, n * ih + 28, 12); ctx.fill();
       ctx.fillStyle = '#9fb0c8'; ctx.font = '11px "Segoe UI", Arial'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';

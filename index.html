@@ -13,7 +13,8 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
     font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
-  canvas#c { position: fixed; inset: 0; display: block; }
+  canvas#c, canvas#gl { position: fixed; inset: 0; display: block; }
+  canvas#gl { background: #79a35a; }
   .hidden { display: none !important; }
   button { font: inherit; cursor: pointer; }
   .screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -81,6 +82,7 @@
 </style>
 </head>
 <body>
+<canvas id="gl"></canvas>
 <canvas id="c"></canvas>
 
 <div id="hud" class="hidden">
@@ -102,6 +104,7 @@
     <div class="row">
       <span class="small" id="progress"></span>
       <span style="flex:1"></span>
+      <button class="btn" id="view-toggle" title="Switch between 3D and 2D view (V)">View: 3D</button>
       <button class="link" id="reset">Reset progress</button>
     </div>
     <div class="controls small" style="margin-top:14px">
@@ -109,6 +112,7 @@
       <span><kbd>Q</kbd> <kbd>E</kbd></span><span>Left / right turn indicator</span>
       <span><kbd>Space</kbd></span><span>Hard brake</span>
       <span><kbd>R</kbd> · <kbd>Esc</kbd></span><span>Restart level · pause</span>
+      <span><kbd>V</kbd></span><span>Switch 3D / 2D view</span>
     </div>
   </div>
 </div>
@@ -152,15 +156,18 @@
       <button class="btn primary" id="p-resume">Resume</button>
       <button class="btn" id="p-restart">Restart</button>
       <button class="btn" id="p-menu">Levels</button>
+      <button class="btn" id="p-view">View: 3D</button>
     </div>
   </div>
 </div>
 
+<script src="js/vendor/three.min.js"></script>
 <script src="js/geometry.js"></script>
 <script src="js/world.js"></script>
 <script src="js/agents.js"></script>
 <script src="js/signs.js"></script>
 <script src="js/rules.js"></script>
+<script src="js/render3d.js"></script>
 <script src="js/game.js"></script>
 <script src="js/levels.js"></script>
 <script src="js/main.js"></script>
