@@ -48,7 +48,7 @@ class PlayerCar {
     const sp = Math.abs(this.v) / PX;
     const maxSteer = 0.62 / (1 + sp * 0.07);
     const target = ((inp.right ? 1 : 0) - (inp.left ? 1 : 0) + (inp.steer || 0)) * maxSteer;
-    const rate = (inp.left || inp.right || inp.steer) ? 2.6 : 4.0;
+    const rate = (inp.left || inp.right || inp.steer) ? (inp.touch ? 1.6 : 2.6) : 4.0; // gentler ramp on touch screens
     this.steer += clamp(clamp(target, -maxSteer, maxSteer) - this.steer, -rate * dt, rate * dt);
     const h0 = this.h;
     this.h = normAng(this.h + this.v / this.wheelbase * Math.tan(this.steer) * dt);
@@ -280,12 +280,13 @@ class Game {
         const along = r.axis === 'h' ? Math.cos(car.h) : Math.sin(car.h);
         if (Math.abs(along) < 0.5) continue;
         const sgn = Math.sign(along) * Math.sign(car.v);
-        const w = r.axis === 'h' ? (sgn > 0 ? c.y < r.c - 5 : c.y > r.c + 5) : (sgn > 0 ? c.x > r.c + 5 : c.x < r.c - 5);
+        const tol = 9; // px past the centre line before it counts
+        const w = r.axis === 'h' ? (sgn > 0 ? c.y < r.c - tol : c.y > r.c + tol) : (sgn > 0 ? c.x > r.c + tol : c.x < r.c - tol);
         if (w) { wrong = true; const pos = r.axis === 'h' ? c.x : c.y; solid = r.center === 'solid' || r.solid.some(s => pos >= s[0] && pos <= s[1]); }
       }
     }
     trk.wrongT = wrong ? trk.wrongT + dt : Math.max(0, trk.wrongT - dt * 2);
-    if (trk.wrongT > 0.6) return this.fail(solid ? 'solidLine' : 'wrongLane');
+    if (trk.wrongT > 0.9) return this.fail(solid ? 'solidLine' : 'wrongLane');
 
     // speed
     const lim = W.limitAt(c);

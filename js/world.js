@@ -137,7 +137,7 @@ class World {
 
   /** Roundabout with arms; arms = {n: len, e: len, s: len, w: len} (lengths measured from the centre). */
   roundabout(cx, cy, arms, o = {}) {
-    const r1 = o.r1 || 80, r2 = o.r2 || 146;
+    const r1 = o.r1 || 90, r2 = o.r2 || r1 + Math.round(1.7 * LW);
     const rb = { cx, cy, r1, r2, rc: (r1 + r2) / 2, arms: {}, sidewalk: o.sidewalk !== false };
     for (const a of ['n', 'e', 's', 'w']) {
       if (!arms[a]) continue;

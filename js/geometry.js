@@ -3,9 +3,9 @@
 // Units & constants. The world is measured in pixels; 1 metre = PX pixels.
 // ---------------------------------------------------------------------------
 const PX = 12;          // pixels per metre
-const LW = 42;          // lane width (3.5 m)
+const LW = 52;          // lane width (≈4.3 m – a bit wider than real lanes so it is easier to drive)
 const SW = 30;          // sidewalk width (2.5 m)
-const CR = 72;          // kerb radius at junction corners (6 m)
+const CR = 90;          // kerb radius at junction corners (7.5 m)
 const TAU = Math.PI * 2;
 const HEAD = { E: 0, S: Math.PI / 2, W: Math.PI, N: -Math.PI / 2 };
 const DIRV = { E: { x: 1, y: 0 }, S: { x: 0, y: 1 }, W: { x: -1, y: 0 }, N: { x: 0, y: -1 } };

@@ -108,6 +108,7 @@ const UI = {
 const KEYMAP = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', Space: 'brake' };
 window.addEventListener('keydown', e => {
   const k = KEYMAP[e.code];
+  if (k) game.input.touch = false;
   if (k) { game.input[k] = true; if (game.state === 'play') e.preventDefault(); }
   if (e.repeat) return;
   if (game.state === 'play') {
@@ -124,7 +125,7 @@ window.addEventListener('blur', () => { for (const k of Object.values(KEYMAP)) g
 
 function bindHold(id, key) {
   const el = $(id);
-  const on = e => { e.preventDefault(); game.input[key] = true; el.classList.add('on'); };
+  const on = e => { e.preventDefault(); game.input[key] = true; game.input.touch = true; el.classList.add('on'); };
   const off = e => { e.preventDefault(); game.input[key] = false; el.classList.remove('on'); };
   el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off);
   el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);

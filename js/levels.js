@@ -171,7 +171,7 @@ const LEVELS = [
       W.start(S.lane('N'), 840, 'N');
       W.setRoute([P(S.lane('N'), 860), P(S.lane('N'), M.lane('E')), P(1600, M.lane('E'))]);
       W.goalAt(P(1450, M.lane('E')), 'E');
-      W.yieldRule({ conflict: rect(-42, 0, 150, 42), watch: rect(-560, 0, -42, 42), key: 'yieldMain' });
+      W.yieldRule({ conflict: rect(-LW, 0, 160, LW), watch: rect(-560, 0, -LW, LW), key: 'yieldMain' });
       straightTraffic(W, M, 'E', { interval: [3.5, 8], speed: [45, 50] });
       straightTraffic(W, M, 'W', { interval: [3.5, 8], speed: [45, 50] });
       W.hint(rect(1, 300, 60, 340), 'Full stop at the line, look <b>left</b> for cars, signal <b>right</b> (E).');
@@ -198,7 +198,7 @@ const LEVELS = [
       W.start(S.lane('N'), 840, 'N');
       W.setRoute([P(S.lane('N'), 860), P(S.lane('N'), M.lane('W')), P(-2100, M.lane('W'))]);
       W.goalAt(P(-1950, M.lane('W')), 'W');
-      W.yieldRule({ conflict: rect(-150, -42, 150, 42), watch: [rect(-540, 0, -42, 42), rect(42, -42, 540, 0)], key: 'yieldMain' });
+      W.yieldRule({ conflict: rect(-160, -LW, 160, LW), watch: [rect(-540, 0, -LW, LW), rect(LW, -LW, 540, 0)], key: 'yieldMain' });
       const busy = (W2, G, a) => vehicleIn(W2, G, [W2.approachRect(j2, 'e', 560), W2.approachRect(j2, 'w', 560), j2.box], { exclude: a, minV: 0.4 * PX });
       const sideGate = p => [gateAt(p, y2.mid, (a, W2, G) => !busy(W2, G, a) || (a.waitT > 6 && G && Math.abs(G.car.v) < 0.5), true)];
       straightTraffic(W, M, 'E', { interval: [5, 11] });
@@ -262,7 +262,7 @@ const LEVELS = [
       W.start(V.lane('N'), 900, 'N');
       W.setRoute([P(V.lane('N'), 940), P(V.lane('N'), H.lane('W')), P(-1300, H.lane('W'))]);
       W.goalAt(P(-1100, H.lane('W')), 'W');
-      W.yieldRule({ conflict: rect(-42, -42, 0, 42), watch: W.approachRect(j, 'n', 400), key: 'yieldOncoming' });
+      W.yieldRule({ conflict: rect(-LW, -LW, 0, LW), watch: W.approachRect(j, 'n', 400), key: 'yieldOncoming' });
       const nGate = p => [lightGate(p, L.n, c, 'A')];
       W.spawner({ pts: [V.pt('S', -1300), V.pt('S', 1000)], speed: [45, 50], interval: [2.2, 4.5], gates: nGate });
       W.spawner({ pts: W.jpath(j, 'n', 'w', { inLen: 1250, outLen: 1500 }), speed: 40, interval: [9, 14], first: 5, gates: nGate });
@@ -329,7 +329,7 @@ const LEVELS = [
           speed: [40, 48], interval: [3.5, 7], first: rnd(0, 3), gates: rb.gates[from],
         });
       }
-      W.hint(rect(-80, -210, 80, -150), 'Your exit is next – switch on the <b>right indicator</b> (E) now.');
+      W.hint(rect(-90, -200, 90, -100), 'Your exit is next – switch on the <b>right indicator</b> (E) now.');
       W.hint(rect(-600, -60, -560, 0), 'Park in the <b>P</b> zone.');
     },
   },
@@ -359,13 +359,13 @@ const LEVELS = [
       for (const arm of ['w', 'e']) L[arm] = W.light(j1, arm, c, 'A');
       for (const arm of ['n', 's']) L[arm] = W.light(j1, arm, c, 'B');
       W.junctionSign(j1, 'w', 'lights', null, 260);
-      W.yieldRule({ conflict: rect(1440, -42, 1545, 0), watch: W.approachRect(j1, 'e', 400), key: 'yieldOncoming' });
+      W.yieldRule({ conflict: rect(j1.box.x - 18, -LW, j1.box.x + j1.box.w + 3, 0), watch: W.approachRect(j1, 'e', 400), key: 'yieldOncoming' });
       W.spawner({ pts: [A.pt('W', 2440), A.pt('W', -340)], speed: [40, 50], interval: [3, 6.5], gates: p => [lightGate(p, L.e, c, 'A')] });
       W.spawner({ pts: W.jpath(j1, 's', 'e', { inLen: 760, outLen: 900 }), speed: 40, interval: [3, 6], gates: p => [lightGate(p, L.s, c, 'B')] });
       // STOP at the T junction
       W.stopSign(jT, 's');
       W.roadSign(M, 1300, 'E', 'main'); W.roadSign(M, 1700, 'W', 'main');
-      W.yieldRule({ conflict: rect(1458, -1400, 1650, -1358), watch: W.approachRect(jT, 'w', 520), key: 'yieldMain' });
+      W.yieldRule({ conflict: rect(jT.box.x, -1400, jT.box.x + jT.box.w + 110, -1400 + LW), watch: W.approachRect(jT, 'w', 520), key: 'yieldMain' });
       // roundabout
       setupRoundabout(W, rb, 'w');
       W.spawner({ make: () => W.rbPath(rb, 'w', ['n', 's', 'e'][Math.floor(Math.random() * 3)], 2900, 900), speed: [45, 50], interval: [5, 10], gates: rb.gates.w });
