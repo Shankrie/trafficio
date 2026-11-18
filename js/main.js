@@ -145,7 +145,12 @@ window.addEventListener('load', () => {
   $('p-restart').onclick = () => { UI.brief(game.levelIndex); UI.start(); };
   $('p-menu').onclick = () => UI.menu();
   $('btn-pause').onclick = () => UI.pause();
-  $('reset').onclick = () => { if (confirm('Reset all progress?')) { Progress.data = { done: {}, best: {} }; Progress.save(); UI.menu(); } };
+  $('reset').onclick = () => {
+    const el = $('reset');
+    if (el.dataset.armed) { Progress.data = { done: {}, best: {} }; Progress.save(); delete el.dataset.armed; el.textContent = 'Reset progress'; UI.menu(); return; }
+    el.dataset.armed = '1'; el.textContent = 'Click again to reset all progress';
+    setTimeout(() => { delete el.dataset.armed; el.textContent = 'Reset progress'; }, 4000);
+  };
   bindHold('t-left', 'left'); bindHold('t-right', 'right'); bindHold('t-gas', 'up'); bindHold('t-brake', 'down');
   $('t-sl').addEventListener('pointerdown', e => { e.preventDefault(); if (game.state === 'play') game.car.toggleSignal('left'); });
   $('t-sr').addEventListener('pointerdown', e => { e.preventDefault(); if (game.state === 'play') game.car.toggleSignal('right'); });
