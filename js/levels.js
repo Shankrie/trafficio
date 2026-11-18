@@ -107,7 +107,7 @@ const LEVELS = [
   {
     title: 'Pedestrian crossings', lt: 'Pėsčiųjų perėjos',
     intro: 'At an unregulated pedestrian crossing (<b>zebra</b>) pedestrians who are crossing or stepping onto the crossing have priority. Slow down, stop before the crossing and let them pass completely.',
-    learn: ['Approach crossings at a speed that lets you stop.', 'Give way to pedestrians on or stepping onto the crossing.', 'Wait until the crossing is clear before driving on.'],
+    learn: ['Approach crossings at a speed that lets you stop.', 'Give way to pedestrians on or stepping onto the crossing.', 'Drive on once they have passed your lane and are walking away from it.'],
     signs: [['crosswalk']],
     objective: 'Drive through town and park. Watch out for pedestrians!',
     warmup: 5,

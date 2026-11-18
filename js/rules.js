@@ -95,7 +95,7 @@ const RULES = {
   },
   yieldPed: {
     title: 'You did not give way to a pedestrian',
-    text: 'At an unregulated pedestrian crossing you must stop and let pedestrians who are crossing or stepping onto the crossing go first.',
+    text: 'At an unregulated pedestrian crossing you must stop and let pedestrians who are crossing or stepping onto the crossing go first. You may drive on once they have passed your lane and are walking away from it – never while they are in front of you or heading towards your lane.',
     ket: 'KET: at a pedestrian crossing (pėsčiųjų perėja) the driver must give way to pedestrians crossing the carriageway or stepping onto the crossing.',
   },
   yieldBus: {

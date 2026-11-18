@@ -104,6 +104,26 @@ function zebraClear(W, G, z) {
   return true;
 }
 
+/**
+ * Pedestrian on zebra z that blocks vehicle v: one on (or stepping onto) the vehicle's
+ * half of the road, or one anywhere on the crossing walking towards that half.
+ * Pedestrians who have already passed the vehicle's half and walk away don't block it.
+ */
+function zebraBlocker(W, z, v) {
+  const R = z.rect, horiz = z.axis === 'h';
+  const ext = horiz ? rect(R.x - 6, R.y - 22, R.x + R.w + 6, R.y + R.h + 22) : rect(R.x - 22, R.y - 6, R.x + R.w + 22, R.y + R.h + 6);
+  const c = z.road.c;
+  const side = Math.sign((horiz ? v.y : v.x) - c) || 1;
+  for (const a of W.agents) {
+    if (a.kind !== 'ped' || !inRect(a, ext)) continue;
+    if (!inRect(a, R) && a.v < 0.3) continue; // waiting on the kerb
+    const rel = ((horiz ? a.y : a.x) - c) * side;              // > 0: on the vehicle's half
+    const toward = (horiz ? Math.sin(a.h) : Math.cos(a.h)) * side > 0 && a.v > 0.3;
+    if (rel > -8 || toward) return a;
+  }
+  return null;
+}
+
 /** Gate at the point of a path closest to `pt`. */
 function gateAt(path, pt, open, hard = false) { return { s: path.project(pt), open, hard }; }
 function lightGate(path, line, cyc, g) { return gateAt(path, line.mid, () => cyc.state(g) === 'green'); }
@@ -209,6 +229,7 @@ class Game {
     for (const z of W.zebras) {
       const R = z.rect, ext = z.axis === 'h' ? rect(R.x - 6, R.y - 22, R.x + R.w + 6, R.y + R.h + 22) : rect(R.x - 22, R.y - 6, R.x + R.w + 22, R.y + R.h + 6);
       z.busy = W.agents.some(a => a.kind === 'ped' && inRect(a, ext) && (a.v > 0.3 || inRect(a, R)));
+      z.ext = ext;
     }
     for (const a of W.agents) a.update(dt, W, warm ? null : this);
     W.agents = W.agents.filter(a => !a.done);
@@ -401,9 +422,7 @@ class Game {
       const zr = expandRect(z.rect, 4);
       const inside = inRect(front, zr) || inRect(c, zr);
       if (inside && !z.inside && car.v > 0) {
-        const ext = z.axis === 'h' ? rect(z.rect.x - 6, z.rect.y - 22, z.rect.x + z.rect.w + 6, z.rect.y + z.rect.h + 22)
-                                   : rect(z.rect.x - 22, z.rect.y - 6, z.rect.x + z.rect.w + 22, z.rect.y + z.rect.h + 6);
-        const ped = W.agents.find(a => a.kind === 'ped' && inRect(a, ext));
+        const ped = zebraBlocker(W, z, car);
         if (ped) { this.blame = ped; return this.fail('yieldPed'); }
       }
       z.inside = inside;

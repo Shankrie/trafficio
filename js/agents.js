@@ -60,7 +60,7 @@ class Agent {
       consider(a);
     }
     if (G && G.car) consider(G.car);
-    const zebras = this.kind === 'ped' ? [] : W.zebras.filter(z => z.busy && rectDist(this, z.rect) < look + this.l);
+    const zebras = this.kind === 'ped' ? [] : W.zebras.filter(z => z.busy && rectDist(this, z.rect) < look + this.l && zebraBlocker(W, z, this));
     if (!obs.length && !zebras.length) return Infinity;
     const f0 = this.front;
     for (let d = 0; d <= look; d += step) {
