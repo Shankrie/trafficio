@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Trafficio – KET</title>
+<meta name="description" content="Learn Lithuanian traffic rules (KET) by driving: a top-down 2D driving game with levels.">
+<style>
+  :root {
+    --bg: #0f1724; --panel: rgba(15, 23, 36, 0.94); --text: #eef3fb; --muted: #9fb0c8;
+    --accent: #3fa9f5; --ok: #2ecc71; --bad: #ff5a4f; --line: rgba(255,255,255,0.1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+  canvas#c { position: fixed; inset: 0; display: block; }
+  .hidden { display: none !important; }
+  button { font: inherit; cursor: pointer; }
+  .screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: 16px; background: rgba(8, 12, 20, 0.55); backdrop-filter: blur(3px); overflow-y: auto; }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 26px 28px;
+    width: min(760px, 100%); box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: auto; }
+  h1 { margin: 0; font-size: clamp(30px, 6vw, 46px); letter-spacing: -0.5px; }
+  h1 span { color: var(--accent); }
+  h2 { margin: 2px 0 0; font-size: 28px; }
+  .sub { color: var(--muted); margin: 6px 0 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; }
+  .lvl { text-align: left; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: rgba(255,255,255,0.04); color: var(--text); display: grid; grid-template-columns: auto 1fr; column-gap: 10px;
+    transition: transform .1s, background .1s; }
+  .lvl:hover:not(:disabled) { background: rgba(63,169,245,0.16); transform: translateY(-1px); }
+  .lvl .num { grid-row: span 3; font-size: 26px; font-weight: 700; color: var(--accent); width: 34px; }
+  .lvl .t { font-weight: 600; }
+  .lvl .lt { color: var(--muted); font-size: 12px; }
+  .lvl .st { font-size: 12px; color: var(--accent); margin-top: 4px; }
+  .lvl.done .st { color: var(--ok); }
+  .lvl.locked { opacity: 0.45; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; align-items: center; }
+  .btn { padding: 11px 20px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.07); color: var(--text); font-weight: 600; }
+  .btn:hover { background: rgba(255,255,255,0.14); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #04121f; }
+  .btn.primary:hover { filter: brightness(1.1); }
+  .small { font-size: 13px; color: var(--muted); }
+  .link { background: none; border: none; color: var(--muted); text-decoration: underline; padding: 0; font-size: 13px; }
+  .controls { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14px; margin-top: 8px; }
+  kbd { background: #1d2a3d; border: 1px solid #33455f; border-bottom-width: 2px; border-radius: 5px; padding: 1px 7px; font-size: 12px; font-family: inherit; }
+  .tag { display: inline-block; font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .lt-title { color: var(--muted); font-style: italic; }
+  #b-intro { line-height: 1.55; margin: 14px 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 640px) { .cols { grid-template-columns: 1fr; } .box { padding: 20px 18px; } }
+  .cols h4 { margin: 4px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  ul { margin: 0; padding-left: 18px; line-height: 1.5; }
+  .signs { display: flex; flex-direction: column; gap: 8px; }
+  .sign { display: flex; align-items: center; gap: 12px; }
+  .sign small { display: block; color: var(--muted); }
+  #result .box.ok { border-color: rgba(46,204,113,0.6); }
+  #result .box.bad { border-color: rgba(255,90,79,0.6); }
+  #result .box.ok #r-title { color: var(--ok); }
+  #result .box.bad #r-title { color: var(--bad); }
+  #r-text { line-height: 1.55; margin-top: 12px; }
+  #r-ket { margin-top: 12px; padding: 10px 12px; border-left: 3px solid var(--accent); background: rgba(63,169,245,0.08); border-radius: 4px; font-size: 14px; color: #cfe3f7; }
+  #r-ket:empty { display: none; }
+  /* HUD */
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #objective { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: min(680px, calc(100% - 140px));
+    background: rgba(14,20,32,0.8); padding: 10px 18px; border-radius: 12px; font-size: 15px; text-align: center; line-height: 1.4; }
+  #btn-pause { position: absolute; top: 14px; left: 14px; pointer-events: auto; width: 44px; height: 44px; border-radius: 12px;
+    border: 1px solid var(--line); background: rgba(14,20,32,0.8); color: var(--text); font-size: 18px; }
+  #touch { display: none; }
+  body.touch.playing #touch { display: block; }
+  #touch button { position: absolute; pointer-events: auto; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35);
+    background: rgba(14,20,32,0.45); color: #fff; font-size: 26px; width: 74px; height: 74px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #touch button.on { background: rgba(63,169,245,0.5); }
+  #t-left { left: 16px; bottom: 20px; } #t-right { left: 102px; bottom: 20px; }
+  #t-gas { right: 16px; bottom: 104px; } #t-brake { right: 16px; bottom: 20px; }
+  #t-sl, #t-sr { width: 54px !important; height: 54px !important; font-size: 18px !important; bottom: 106px; }
+  #t-sl { left: 26px; } #t-sr { left: 112px; }
+  body.touch.playing #hud-speed-offset { height: 0; }
+  .menu-art { display: flex; gap: 8px; margin: 8px 0 14px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud" class="hidden">
+  <button id="btn-pause" title="Pause (Esc)">❚❚</button>
+  <div id="objective"></div>
+  <div id="touch">
+    <button id="t-left">◀</button><button id="t-right">▶</button>
+    <button id="t-gas">▲</button><button id="t-brake">▼</button>
+    <button id="t-sl">⇦</button><button id="t-sr">⇨</button>
+  </div>
+</div>
+
+<div id="menu" class="screen hidden">
+  <div class="box">
+    <span class="tag">Kelių eismo taisyklės · Lietuva</span>
+    <h1>Traffic<span>io</span></h1>
+    <p class="sub">Learn the Lithuanian traffic rules (KET) by driving. Pass each level without a single violation to unlock the next one.</p>
+    <div id="levels" class="grid"></div>
+    <div class="row">
+      <span class="small" id="progress"></span>
+      <span style="flex:1"></span>
+      <button class="link" id="reset">Reset progress</button>
+    </div>
+    <div class="controls small" style="margin-top:14px">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Accelerate · brake / reverse · steer</span>
+      <span><kbd>Q</kbd> <kbd>E</kbd></span><span>Left / right turn indicator</span>
+      <span><kbd>Space</kbd></span><span>Hard brake</span>
+      <span><kbd>R</kbd> · <kbd>Esc</kbd></span><span>Restart level · pause</span>
+    </div>
+  </div>
+</div>
+
+<div id="brief" class="screen hidden">
+  <div class="box">
+    <span class="tag" id="b-num"></span>
+    <h2 id="b-title"></h2>
+    <div class="lt-title" id="b-lt"></div>
+    <p id="b-intro"></p>
+    <div class="cols">
+      <div><h4>Rules in this level</h4><ul id="b-learn"></ul></div>
+      <div id="b-signs-wrap"><h4>Signs</h4><div class="signs" id="b-signs"></div></div>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="b-start">Start driving ▸</button>
+      <button class="btn" id="b-back">Levels</button>
+      <span class="small">Controls: arrows / WASD · <kbd>Q</kbd>/<kbd>E</kbd> indicators</span>
+    </div>
+  </div>
+</div>
+
+<div id="result" class="screen hidden">
+  <div class="box" id="r-box">
+    <h2 id="r-title"></h2>
+    <div class="small" id="r-sub"></div>
+    <div id="r-text"></div>
+    <div id="r-ket"></div>
+    <div class="row">
+      <button class="btn primary hidden" id="r-next">Next level ▸</button>
+      <button class="btn" id="r-retry">Try again (R)</button>
+      <button class="btn" id="r-menu">Levels</button>
+    </div>
+  </div>
+</div>
+
+<div id="pause" class="screen hidden">
+  <div class="box" style="width:min(420px,100%)">
+    <h2>Paused</h2>
+    <div class="row">
+      <button class="btn primary" id="p-resume">Resume</button>
+      <button class="btn" id="p-restart">Restart</button>
+      <button class="btn" id="p-menu">Levels</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/geometry.js"></script>
+<script src="js/world.js"></script>
+<script src="js/agents.js"></script>
+<script src="js/signs.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/game.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
